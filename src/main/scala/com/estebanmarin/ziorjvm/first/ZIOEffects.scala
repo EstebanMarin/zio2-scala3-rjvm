@@ -13,4 +13,15 @@ def runForever[R, E, A](zio: ZIO[R, E, A]): ZIO[R, E, A] =
 def convert[R, E, A, B](zio: ZIO[R, E, A], value: B): ZIO[R, E, B] =
   for a <- zio yield value
 def asUnit[R, E, A](zio: ZIO[R, E, A]): ZIO[R, E, Unit] =
-  for a <- zio yield ()
+  zio.unit
+def sum(n: Int): Int =
+  if (n == 0) 0
+  else n + sum(n - 1)
+
+def sumZIO(n: Int): UIO[Int] =
+  if (n == 0) ZIO.succeed(0)
+  else
+    for
+      current <- ZIO.succeed(n)
+      prevSum <- sumZIO(n - 1)
+    yield current + prevSum
