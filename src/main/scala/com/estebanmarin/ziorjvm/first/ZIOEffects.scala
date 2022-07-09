@@ -1,5 +1,3 @@
 package com.estebanmarin.ziorjvm.first
 
-object ZIOEffects {
-
-}
+object ZIOEffects {}
