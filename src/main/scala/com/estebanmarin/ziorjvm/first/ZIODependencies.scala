@@ -21,15 +21,15 @@ object ZIODependencies extends ZIOAppDefault:
     )
   )
 
-  def subscribe_v2(user: User) =
+  def subscribe_v2(user: User): ZIO[UserSubscription, Throwable, Unit] =
     for
       //      sub: UserSubscription <- subscriptionService
       sub: UserSubscription <- ZIO.service[UserSubscription]
       _ <- sub.subscribeUser(user)
     yield ()
 
-  val testUser = User("Esteban Marin", "esteba@marin.com")
-  val testUser2 = User("Esteban Marin", "esteba@marin.com")
+  private val testUser: User = User("Esteban Marin", "esteba@marin.com")
+  private val testUser2: User = User("Esteban Marin", "esteba@marin.com")
 
   val program_v2: ZIO[UserSubscription, Throwable, Unit] =
     for
@@ -62,15 +62,23 @@ object ZIODependencies extends ZIOAppDefault:
   val userSubscriptionLayer: ZLayer[Any, Nothing, UserSubscription] =
     subscriptionLayer >>> userSubscriptionServiceLayer
 
-  val runnable_v2 = program_v2.provide(
+  private val runnable_v2 = program_v2.provide(
     UserSubscription.live,
     EmailService.live,
     UserDatabase.live,
-    ConnectionPool.live(10)
+    ConnectionPool.live(10),
+//    ZLayer.Debug.tree,
+//    ZLayer.Debug.mermaid
+  )
+
+  val runnable_v3: ZLayer[Any, Nothing, UserSubscription] = ZLayer.make[UserSubscription](
+    UserSubscription.live,
+    EmailService.live,
+    UserDatabase.live,
+    ConnectionPool.live(10),
   )
 
   def run = program_v2.provide(userSubscriptionLayer)
-
 
 //    ZLayer.succeed(
 //      UserSubscription.create(
